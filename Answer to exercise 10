@@ -1,7 +1,7 @@
 # Answer to #1 in R code
 
 data = read.csv("data.txt", header = TRUE, sep = ",")
-df=data.frame(x=x,y=y
+df=data.frame(x=x,y=y)
 
 nllike<-function(p,x,y){
   B0=p[1]
