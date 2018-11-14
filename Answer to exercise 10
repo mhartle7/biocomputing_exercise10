@@ -1,6 +1,7 @@
 # Answer to #1 in R code
 
-read.csv("data.txt", header = TRUE, sep = ",")
+data = read.csv("data.txt", header = TRUE, sep = ",")
+df=data.frame(x=x,y=y
 
 nllike<-function(p,x,y){
   B0=p[1]
@@ -32,6 +33,9 @@ print(fit_quad)
 
 test= 2*(fit_line$value-fit_quad$value)
 p_value= 1-pchisq(q=test, df=1)
+
+print(test)
+print(p_value)
 
 # Answer to #2 in R code
 
