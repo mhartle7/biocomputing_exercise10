@@ -1,0 +1,100 @@
+# Answer to #1 in R code
+
+read.csv("data.txt", header = TRUE, sep = ",")
+
+nllike<-function(p,x,y){
+  B0=p[1]
+  B1=p[2]
+  sigma=exp(p[3])
+  expected=B0+B1*x
+  nll=-sum(dnorm(x=y,mean=expected,sd=sigma,log=TRUE))
+  return(nll)
+}
+
+quadlike<-function(p,x,y){
+  B0=p[1]
+  B1=p[2]
+  B2=p[3]
+  sigma=exp(p[4])
+  expected=B0+B1*x+B2*x*x
+  nll=-sum(dnorm(x=y,mean=expected,sd=sigma,log=TRUE))
+  return(nll)
+}
+
+initialGuess_line=c(1,1,1)
+fit_line=optim(par=initialGuess_line,fn=nllike,x=df$x,y=df$y)
+
+initialGuess_quad=c(1,1,1,1)
+fit_quad=optim(par=initialGuess_quad,fn=quadlike,x=df$x,y=df$y)
+
+print(fit_line)
+print(fit_quad)
+
+test= 2*(fit_line$value-fit_quad$value)
+p_value= 1-pchisq(q=test, df=1)
+
+# Answer to #2 in R code
+
+library(deSolve)
+library(ggplot2)
+
+ddSim<-function(t,y,p){
+  N=y
+  r=p[1]
+  K=p[2]
+  
+  dNdt=r*(1-N/K)*N
+  return(list(dNdt))
+}
+
+params=c(0.2,100)
+N0=2
+times=1:100
+
+modelSim=ode(y=N0,times=times,func=ddSim,parms=params)
+
+modelOutput=data.frame(time=modelSim[,1],N=modelSim[,2])
+
+ggplot(modelOutput,aes(x=time,y=N))+geom_line()+theme_classic()
+
+Sim<-function(t,y,p){
+  N1=y[1]
+  N2=y[2]
+  
+  R1=p[1]
+  a22=p[2]
+  a12=p[3]
+  R2=p[4]
+  a21=p[5]
+  a11=p[6]
+  
+  dN1dt=R1*(1-N1*a11-N2*a12)*N1
+  dN2dt=R2*(1-N2*a22-N1*a21)*N2
+  
+  return(list(c(dN1dt,dN2dt)))
+}
+
+#case1
+params1= c(.5,.5,.0025,.5,.004,.095)
+N0=c(0.1,0.1)
+time=1:100
+sim1=ode(y=y0,times=times,func=Sim,parms=params1)
+out1=data.frame(time=sim1[,1],normal=sim1[,2],tumor=sim1[,3])
+ggplot(out1,aes(x=time,y=normal))+geom_line()+geom_line(data=out1,mapping=aes(x=time,y=tumor),col='red')+theme_classic()
+
+#case2
+params2= c(.5,.5,.003,.5,.006,.075)
+N0=c(0.1,0.1)
+times= 1:100
+sim2=ode(y=y0,times=times,func=Sim,parms=params2)
+out2=data.frame(time=sim2[,1],normal=sim2[,2],tumor=sim2[,3])
+ggplot(out2,aes(x=time,y=normal))+geom_line()+geom_line(data=out2,mapping=aes(x=time,y=tumor),col='red')+theme_classic()
+
+
+#case3
+params3= c(.5,.5,.001,.5,.008,.085)
+N0=c(0.1,0.1)
+times= 1:100
+sim3=ode(y=y0,times=times,func=Sim,parms=params3)
+out3=data.frame(time=sim3[,1],normal=sim3[,2],tumor=sim3[,3])
+ggplot(out3,aes(x=time,y=normal))+geom_line()+geom_line(data=out3,mapping=aes(x=time,y=tumor),col='red')+theme_classic()
