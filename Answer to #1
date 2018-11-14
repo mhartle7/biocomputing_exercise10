@@ -1,0 +1,34 @@
+#answer to #1 in R code
+
+read.csv("data.txt", header = TRUE, sep = ",")
+
+nllike<-function(p,x,y){
+  B0=p[1]
+  B1=p[2]
+  sigma=exp(p[3])
+  expected=B0+B1*x
+  nll=-sum(dnorm(x=y,mean=expected,sd=sigma,log=TRUE))
+  return(nll)
+}
+
+quadlike<-function(p,x,y){
+  B0=p[1]
+  B1=p[2]
+  B2=p[3]
+  sigma=exp(p[4])
+  expected=B0+B1*x+B2*x*x
+  nll=-sum(dnorm(x=y,mean=expected,sd=sigma,log=TRUE))
+  return(nll)
+}
+
+initialGuess_line=c(1,1,1)
+fit_line=optim(par=initialGuess_line,fn=nllike,x=df$x,y=df$y)
+
+initialGuess_quad=c(1,1,1,1)
+fit_quad=optim(par=initialGuess_quad,fn=quadlike,x=df$x,y=df$y)
+
+print(fit_line)
+print(fit_quad)
+
+test= 2*(fit_line$value-fit_quad$value)
+p_value= 1-pchisq(q=test, df=1)
